@@ -28,13 +28,7 @@ def extract_solution(solution_str):
     return remove_boxed(last_boxed_only_string(solution_str))
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--local_dir', default='~/data/math')
-    parser.add_argument('--hdfs_dir', default=None)
-
-    args = parser.parse_args()
-
+def prepare_math_dataset(local_dir, hdfs_dir=None):
     data_source = 'lighteval/MATH'
 
     dataset = datasets.load_dataset(data_source, trust_remote_code=True)
@@ -44,14 +38,10 @@ if __name__ == '__main__':
 
     instruction_following = "Let's think step by step and output the final answer within \\boxed{}."
 
-    # add a row to each data item that represents a unique id
     def make_map_fn(split):
-
         def process_fn(example, idx):
             question = example.pop('problem')
-
             question = question + ' ' + instruction_following
-
             answer = example.pop('solution')
             solution = extract_solution(answer)
             data = {
@@ -71,19 +61,24 @@ if __name__ == '__main__':
                 }
             }
             return data
-
         return process_fn
 
     train_dataset = train_dataset.map(function=make_map_fn('train'), with_indices=True)
     test_dataset = test_dataset.map(function=make_map_fn('test'), with_indices=True)
-
-    local_dir = args.local_dir
-    hdfs_dir = args.hdfs_dir
 
     train_dataset.to_parquet(os.path.join(local_dir, 'train.parquet'))
     test_dataset.to_parquet(os.path.join(local_dir, 'test.parquet'))
 
     if hdfs_dir is not None:
         makedirs(hdfs_dir)
-
         copy(src=local_dir, dst=hdfs_dir)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--local_dir', default='~/data/math')
+    parser.add_argument('--hdfs_dir', default=None)
+
+    args = parser.parse_args()
+
+    prepare_math_dataset(args.local_dir, args.hdfs_dir)

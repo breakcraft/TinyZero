@@ -195,5 +195,11 @@ def main_task(config):
     trainer.fit()
 
 
+def run_ppo_split(config):
+    if not ray.is_initialized():
+        ray.init(runtime_env={'env_vars': {'TOKENIZERS_PARALLELISM': 'true', 'NCCL_DEBUG': 'WARN'}})
+    ray.get(main_task.remote(config))
+
+
 if __name__ == '__main__':
     main()

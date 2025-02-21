@@ -94,8 +94,7 @@ import ray
 import hydra
 
 
-@hydra.main(config_path='config', config_name='ppo_trainer', version_base=None)
-def main(config):
+def run_ppo(config):
     if not ray.is_initialized():
         # this is for local ray cluster
         ray.init(runtime_env={'env_vars': {'TOKENIZERS_PARALLELISM': 'true', 'NCCL_DEBUG': 'WARN'}})
@@ -187,6 +186,11 @@ def main_task(config):
                             val_reward_fn=val_reward_fn)
     trainer.init_workers()
     trainer.fit()
+
+
+@hydra.main(config_path='config', config_name='ppo_trainer', version_base=None)
+def main(config):
+    run_ppo(config)
 
 
 if __name__ == '__main__':

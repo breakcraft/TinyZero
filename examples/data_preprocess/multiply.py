@@ -7,7 +7,7 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -37,7 +37,7 @@ def gen_dataset(
     for _ in tqdm(range(N)):
         # Helper function to generate a number with 50% chance of being N-digit or N/2-digit
         def get_random_num():
-            r = randint(,3)
+            r = randint(0,3)
             if r == 0:
                 # 2 digits less than original
                 max_num = 10**(DIGIT-2)
@@ -72,13 +72,7 @@ def make_prefix(dp):
     prefix = f"""A conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant first thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think> <answer> RESULT_NUMBER </answer>. User: Give me the answer of the following equation: {num1} * {num2} = Assistant: Ok let me think about it.\n<think>"""
     return prefix
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--local_dir', default='~/data/multiply-3_digit')
-    parser.add_argument('--hdfs_dir', default=None)
-
-    args = parser.parse_args()
-
+def prepare_multiply_dataset(local_dir, hdfs_dir=None):
     data_source = 'yolo/multiply-3_digit'
     DIGIT = 3
     # N = 1000000
@@ -138,13 +132,18 @@ if __name__ == '__main__':
     train_dataset = train_dataset.map(function=make_map_fn('train'), with_indices=True)
     test_dataset = test_dataset.map(function=make_map_fn('test'), with_indices=True)
 
-    local_dir = args.local_dir
-    hdfs_dir = args.hdfs_dir
-
     train_dataset.to_parquet(os.path.join(local_dir, 'train.parquet'))
     test_dataset.to_parquet(os.path.join(local_dir, 'test.parquet'))
 
     if hdfs_dir is not None:
         makedirs(hdfs_dir)
-
         copy(src=local_dir, dst=hdfs_dir)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--local_dir', default='~/data/multiply-3_digit')
+    parser.add_argument('--hdfs_dir', default=None)
+
+    args = parser.parse_args()
+
+    prepare_multiply_dataset(args.local_dir, args.hdfs_dir)
