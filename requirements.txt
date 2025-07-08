@@ -9,6 +9,6 @@ pandas
 pybind11
 ray
 tensordict<0.6
-transformers<4.48
-vllm<=0.6.3
+transformers<4.54
+vllm<=0.9.2
 wandb
