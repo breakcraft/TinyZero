@@ -98,6 +98,53 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 bash ./scripts/train_tiny_zero.sh
 ```
 
+## Workflow Setup
+
+To set up and run the workflows, follow these steps:
+
+1. Clone the repository:
+```
+git clone https://github.com/breakcraft/TinyZero.git
+cd TinyZero
+```
+
+2. Set up the Python environment:
+```
+conda create -n tinyzero python=3.9
+conda activate tinyzero
+pip install -r requirements.txt
+```
+
+3. Configure the GitHub Actions workflows:
+   - Ensure that the necessary secrets (e.g., `PROXY_HTTP`, `PROXY_HTTPS`) are set up in your GitHub repository settings.
+   - Modify the workflow files in the `.github/workflows` directory as needed.
+
+4. Push your changes to the main branch to trigger the workflows:
+```
+git add .
+git commit -m "Set up workflows"
+git push origin main
+```
+
+## Data Preparation
+
+To prepare the datasets, follow these steps:
+
+1. Prepare the GSM8K dataset:
+```
+python examples/data_preprocess/gsm8k.py --local_dir ~/data/gsm8k
+```
+
+2. Prepare the Math dataset:
+```
+python examples/data_preprocess/math_dataset.py --local_dir ~/data/math
+```
+
+3. Prepare the Multiply dataset:
+```
+python examples/data_preprocess/multiply.py --local_dir ~/data/multiply
+```
+
 ## Acknowledge
 * We run our experiments based on [veRL](https://github.com/volcengine/verl).
 * We use Qwen2.5 series base model [Qwen2.5](https://github.com/QwenLM/Qwen2.5).

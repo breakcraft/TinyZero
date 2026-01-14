@@ -13,6 +13,10 @@
 # limitations under the License.
 
 import ray
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @ray.remote
@@ -29,9 +33,13 @@ class TestWorker:
         self.communicator = create_nccl_communicator_in_ray(self.rank, self.world_size, self.group_name)
 
     def test(self):
-        if self.communicator is None:
+        try:
+            if self.communicator is None:
+                return None
+            return self.communicator.rank_id()
+        except Exception as e:
+            logger.error(f"Error in test method: {e}")
             return None
-        return self.communicator.rank_id()
 
 
 def test_rvdz():
